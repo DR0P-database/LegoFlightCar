@@ -41,11 +41,26 @@ class TransitionTests(VehicleTestCase):
                     TRANSITION_STEPS[(source, target)],
                 )
 
-    def test_m_10_transition_without_request_is_noop(self) -> None:
-        """M-10: transition без новой цели не должен изменять объект."""
+    def test_m_10a_transition_without_request_is_noop(self) -> None:
+        """M-10a: transition без новой цели не должен изменять объект."""
         vehicle = LegoVehicle(0, 20)
         before = vehicle.get_status()
 
+        vehicle.transition()
+
+        self.assertEqual(vehicle.get_status(), before)
+
+    def test_m_10b_explicit_request_of_current_mode_is_noop(self) -> None:
+        """M-10b: явный запрос текущего режима должен быть полным no-op."""
+        vehicle = self.make_vehicle_in_mode(HOVER_MODE)
+        self.switch_to(vehicle, ROAD_MODE)
+        self.assertEqual(
+            vehicle.last_transition_path,
+            (HOVER_MODE, ROAD_MODE),
+        )
+        before = vehicle.get_status()
+
+        vehicle.change_mode(ROAD_MODE)
         vehicle.transition()
 
         self.assertEqual(vehicle.get_status(), before)
