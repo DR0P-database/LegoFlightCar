@@ -67,7 +67,6 @@ class LegoVehicle:
 
     def move(
         self,
-        direction: str,
         duration_min: float,
         power_usage: float,
     ) -> None:

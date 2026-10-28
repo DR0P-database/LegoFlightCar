@@ -32,8 +32,6 @@ DECELERATE_TO_ZERO_STEP = "decelerate_to_zero"
 RETRACT_WINGS_STEP = "retract_wings"
 APPROACH_ON_WINGS_STEP = "approach_on_wings"
 
-FORWARD_DIRECTION = "forward"
-UNAVAILABLE_DIRECTION = "up"
 NOT_AIRBORNE_MESSAGE = "режим flight требует нахождения в воздухе"
 INSUFFICIENT_FLIGHT_SPEED_MESSAGE = "скорость ниже минимальной для режима flight"
 

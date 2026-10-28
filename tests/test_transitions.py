@@ -41,6 +41,22 @@ class TransitionTests(VehicleTestCase):
                     TRANSITION_STEPS[(source, target)],
                 )
 
+    def test_m_09_landing_with_exact_transition_fuel(self) -> None:
+        """M-09: посадка при ровно 2.0 л должна завершаться с нулём топлива."""
+        vehicle = self.make_vehicle_in_mode(HOVER_MODE)
+        self.force_state(vehicle, fuel_l=2.0)
+        self.assertHoverMode(vehicle)
+        self.assertEqual(vehicle.fuel_l, 2.0)
+
+        self.switch_to(vehicle, ROAD_MODE)
+
+        self.assertEqual(vehicle.fuel_l, 0.0)
+        self.assertEqual(vehicle.last_transition_path, (HOVER_MODE, ROAD_MODE))
+        self.assertEqual(
+            vehicle.last_transition_steps,
+            TRANSITION_STEPS[(HOVER_MODE, ROAD_MODE)],
+        )
+
     def test_m_10a_transition_without_request_is_noop(self) -> None:
         """M-10a: transition без новой цели не должен изменять объект."""
         vehicle = LegoVehicle(0, 20)

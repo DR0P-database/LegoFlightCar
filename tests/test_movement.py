@@ -9,10 +9,8 @@ from lego_flight_car import (
 from .base import (
     FLIGHT_INVARIANT_CASES,
     FLIGHT_MODE,
-    FORWARD_DIRECTION,
     HOVER_MODE,
     ROAD_MODE,
-    UNAVAILABLE_DIRECTION,
     VehicleTestCase,
 )
 
@@ -22,7 +20,7 @@ class MovementTests(VehicleTestCase):
         """M-13: движение по дороге должно учитывать коэффициент нагрузки."""
         vehicle = LegoVehicle(100, 20)
 
-        vehicle.move(FORWARD_DIRECTION, 10, 0.5)
+        vehicle.move(10, 0.5)
 
         self.assertAlmostEqual(vehicle.fuel_l, 19.375)
         self.assertMode(vehicle, ROAD_MODE)
@@ -33,7 +31,7 @@ class MovementTests(VehicleTestCase):
         self.setSpeed(vehicle, vehicle.MIN_FLIGHT_SPEED_KMH)
         self.switch_to(vehicle, FLIGHT_MODE)
 
-        vehicle.move(FORWARD_DIRECTION, 10, 1.0)
+        vehicle.move(10, 1.0)
 
         self.assertAlmostEqual(vehicle.fuel_l, 17.0)
         self.assertMode(vehicle, FLIGHT_MODE)
@@ -54,7 +52,7 @@ class MovementTests(VehicleTestCase):
         self.setSpeed(vehicle, vehicle.MIN_FLIGHT_SPEED_KMH)
         self.switch_to(vehicle, FLIGHT_MODE)
 
-        vehicle.move(FORWARD_DIRECTION, 10, 1.0)
+        vehicle.move(10, 1.0)
 
         self.assertAlmostEqual(vehicle.fuel_l, vehicle.MIN_FUEL_L)
         self.assertMode(vehicle, FLIGHT_MODE)
@@ -62,39 +60,33 @@ class MovementTests(VehicleTestCase):
     def test_m_16_move_rejects_all_invalid_calls_atomically(self) -> None:
         """M-16: move должен валидировать аргументы, состояние и запас топлива."""
         argument_cases = (
-            ((1, 10, 0.5), TypeError, "параметр direction имеет недопустимый тип"),
             (
-                (FORWARD_DIRECTION, "много", 0.5),
+                ("много", 0.5),
                 ValueError,
                 "could not convert string to float: 'много'",
             ),
             (
-                (FORWARD_DIRECTION, 10, "много"),
+                (10, "много"),
                 ValueError,
                 "could not convert string to float: 'много'",
             ),
             (
-                (UNAVAILABLE_DIRECTION, 10, 0.5),
-                ValueError,
-                "направление up недоступно в режиме road",
-            ),
-            (
-                (FORWARD_DIRECTION, 0, 0.5),
+                (0, 0.5),
                 ValueError,
                 "duration_min должен быть положительным",
             ),
             (
-                (FORWARD_DIRECTION, -1, 0.5),
+                (-1, 0.5),
                 ValueError,
                 "duration_min должен быть положительным",
             ),
             (
-                (FORWARD_DIRECTION, 10, 0),
+                (10, 0),
                 ValueError,
                 "power_usage должен быть в диапазоне (0, 1]",
             ),
             (
-                (FORWARD_DIRECTION, 10, 1.1),
+                (10, 1.1),
                 ValueError,
                 "power_usage должен быть в диапазоне (0, 1]",
             ),
@@ -117,7 +109,7 @@ class MovementTests(VehicleTestCase):
                 vehicle,
                 InvalidState,
                 "транспорт находится в процессе перехода",
-                lambda: vehicle.move(FORWARD_DIRECTION, 1, 0.5),
+                lambda: vehicle.move(1, 0.5),
             )
             self.assertIsInstance(error, LegoVehicleError)
             self.assertIsInstance(error, CrazyVehicleError)
@@ -129,7 +121,7 @@ class MovementTests(VehicleTestCase):
                 vehicle,
                 InvalidState,
                 "нарушен инвариант режима",
-                lambda: vehicle.move(FORWARD_DIRECTION, 1, 0.5),
+                lambda: vehicle.move(1, 0.5),
             )
 
         for case_name, broken_state, error, message in FLIGHT_INVARIANT_CASES:
@@ -140,7 +132,7 @@ class MovementTests(VehicleTestCase):
                     vehicle,
                     error,
                     message,
-                    lambda: vehicle.move(FORWARD_DIRECTION, 11, 1.0),
+                    lambda: vehicle.move(11, 1.0),
                 )
                 self.assertIsInstance(raised, InvalidState)
                 self.assertIsInstance(raised, LegoVehicleError)
@@ -152,7 +144,7 @@ class MovementTests(VehicleTestCase):
                 vehicle,
                 NotEnoughFuel,
                 "недостаточно топлива",
-                lambda: vehicle.move(FORWARD_DIRECTION, 1, 1.0),
+                lambda: vehicle.move(1, 1.0),
             )
             self.assertIsInstance(error, LegoVehicleError)
             self.assertIsInstance(error, CrazyVehicleError)
@@ -230,7 +222,7 @@ class MovementTests(VehicleTestCase):
     def test_move_converts_numeric_strings(self) -> None:
         """Движение должно принимать числовые строки."""
         vehicle = LegoVehicle(100, 20)
-        vehicle.move(FORWARD_DIRECTION, "10", "0.5")  # type: ignore[arg-type]
+        vehicle.move("10", "0.5")  # type: ignore[arg-type]
         self.assertAlmostEqual(vehicle.fuel_l, 19.375)
         self.assertMode(vehicle, ROAD_MODE)
 

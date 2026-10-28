@@ -4,7 +4,6 @@ from .base import (
     EMERGENCY_FLIGHT_PATH,
     EMERGENCY_FLIGHT_STEPS,
     FLIGHT_MODE,
-    FORWARD_DIRECTION,
     HOVER_MODE,
     HOVER_TO_ROAD,
     ROAD_MODE,
@@ -36,7 +35,7 @@ class EmergencyAndStatusTests(VehicleTestCase):
         self.setSpeed(vehicle, vehicle.MIN_FLIGHT_SPEED_KMH)
         self.switch_to(vehicle, FLIGHT_MODE)
 
-        vehicle.move(FORWARD_DIRECTION, 11, 1.0)
+        vehicle.move(11, 1.0)
 
         self.assertMode(vehicle, ROAD_MODE)
         self.assertAlmostEqual(vehicle.fuel_l, 3.0)

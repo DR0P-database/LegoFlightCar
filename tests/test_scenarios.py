@@ -8,7 +8,6 @@ from .base import (
     FLIGHT_MODE,
     FLIGHT_TO_HOVER,
     FLIGHT_TO_ROAD,
-    FORWARD_DIRECTION,
     HOVER_MODE,
     HOVER_TO_FLIGHT,
     HOVER_TO_ROAD,
@@ -102,7 +101,7 @@ class ScenarioTests(VehicleTestCase):
             vehicle.MIN_FLIGHT_SPEED_KMH,
         )
 
-        vehicle.move(FORWARD_DIRECTION, 11, 1.0)
+        vehicle.move(11, 1.0)
 
         self.assertMode(vehicle, ROAD_MODE)
         self.assertEqual(
