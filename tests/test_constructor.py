@@ -34,16 +34,16 @@ class ConstructorTests(VehicleTestCase):
                 self.assertAlmostEqual(vehicle.fuel_l, fuel_l)
 
     def test_m_03_constructor_rejects_invalid_values(self) -> None:
-        """M-03: конструктор должен отклонять типы и значения вне диапазона."""
+        """M-03: конструктор должен отклонять непреобразуемые значения, bool и значения вне диапазона."""
         cases = (
             (-0.1, 20, ValueError, "payload_kg вне допустимого диапазона"),
             (200.1, 20, ValueError, "payload_kg вне допустимого диапазона"),
             (0, -0.1, ValueError, "fuel_l вне допустимого диапазона"),
             (0, 60.1, ValueError, "fuel_l вне допустимого диапазона"),
-            ("много", 20, TypeError, "параметр payload_kg должен иметь тип float"),
-            (True, 20, TypeError, "параметр payload_kg должен иметь тип float"),
-            (0, "много", TypeError, "параметр fuel_l должен иметь тип float"),
-            (0, False, TypeError, "параметр fuel_l должен иметь тип float"),
+            ("много", 20, ValueError, "could not convert string to float: 'много'"),
+            (True, 20, ValueError, "параметр payload_kg не должен иметь тип bool"),
+            (0, "много", ValueError, "could not convert string to float: 'много'"),
+            (0, False, ValueError, "параметр fuel_l не должен иметь тип bool"),
         )
 
         for payload_kg, fuel_l, error, message in cases:
@@ -53,3 +53,11 @@ class ConstructorTests(VehicleTestCase):
             with self.subTest(msg=case_message):
                 with self.assertRaisesRegex(error, message):
                     LegoVehicle(payload_kg, fuel_l)  # type: ignore[arg-type]
+
+    def test_constructor_converts_numeric_strings(self) -> None:
+        """Конструктор должен приводить числовые строки к float."""
+        vehicle = LegoVehicle("12.5", "20")  # type: ignore[arg-type]
+        self.assertEqual(vehicle.payload_kg, 12.5)
+        self.assertEqual(vehicle.fuel_l, 20.0)
+        self.assertIsInstance(vehicle.payload_kg, float)
+        self.assertIsInstance(vehicle.fuel_l, float)

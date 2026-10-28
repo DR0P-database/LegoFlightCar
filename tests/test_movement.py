@@ -64,14 +64,14 @@ class MovementTests(VehicleTestCase):
         argument_cases = (
             ((1, 10, 0.5), TypeError, "параметр direction имеет недопустимый тип"),
             (
-                (FORWARD_DIRECTION, "10", 0.5),
-                TypeError,
-                "параметр duration_min имеет недопустимый тип",
+                (FORWARD_DIRECTION, "много", 0.5),
+                ValueError,
+                "could not convert string to float: 'много'",
             ),
             (
-                (FORWARD_DIRECTION, 10, "0.5"),
-                TypeError,
-                "параметр power_usage имеет недопустимый тип",
+                (FORWARD_DIRECTION, 10, "много"),
+                ValueError,
+                "could not convert string to float: 'много'",
             ),
             (
                 (UNAVAILABLE_DIRECTION, 10, 0.5),
@@ -160,11 +160,11 @@ class MovementTests(VehicleTestCase):
     def test_m_17_hover_rejects_all_invalid_calls_atomically(self) -> None:
         """M-17: hover должен валидировать аргументы и устойчивость режима."""
         argument_cases = (
-            (("10", 0.5), TypeError, "параметр duration_min имеет недопустимый тип"),
+            (("много", 0.5), ValueError, "could not convert string to float: 'много'"),
             (
-                (10, "0.5"),
-                TypeError,
-                "параметр power_usage имеет недопустимый тип",
+                (10, "много"),
+                ValueError,
+                "could not convert string to float: 'много'",
             ),
             ((0, 0.5), ValueError, "duration_min должен быть положительным"),
             (
@@ -226,3 +226,18 @@ class MovementTests(VehicleTestCase):
                 "нарушен инвариант режима",
                 lambda: vehicle.hover(1, 0.5),
             )
+
+    def test_move_converts_numeric_strings(self) -> None:
+        """Движение должно принимать числовые строки."""
+        vehicle = LegoVehicle(100, 20)
+        vehicle.move(FORWARD_DIRECTION, "10", "0.5")  # type: ignore[arg-type]
+        self.assertAlmostEqual(vehicle.fuel_l, 19.375)
+        self.assertMode(vehicle, ROAD_MODE)
+
+    def test_hover_converts_numeric_strings(self) -> None:
+        """Зависание должно принимать числовые строки."""
+        vehicle = LegoVehicle(0, 10)
+        self.switch_to(vehicle, HOVER_MODE)
+        vehicle.hover("10", "1.0")  # type: ignore[arg-type]
+        self.assertAlmostEqual(vehicle.fuel_l, vehicle.MIN_FUEL_L)
+        self.assertMode(vehicle, HOVER_MODE)
