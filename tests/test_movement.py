@@ -233,3 +233,15 @@ class MovementTests(VehicleTestCase):
         vehicle.hover("10", "1.0")  # type: ignore[arg-type]
         self.assertAlmostEqual(vehicle.fuel_l, vehicle.MIN_FUEL_L)
         self.assertMode(vehicle, HOVER_MODE)
+
+    def test_m_21_move_in_hover_consumes_hover_fuel(self) -> None:
+        """M-21: движение в hover расходует топливо и сохраняет режим и журнал."""
+        vehicle = self.make_vehicle_in_mode(HOVER_MODE, fuel_l=10)
+        before = vehicle.get_status()
+
+        vehicle.move(5, 1.0)
+
+        self.assertMode(vehicle, HOVER_MODE)
+        self.assertAlmostEqual(vehicle.fuel_l, 6.0)
+        expected = dict(before, fuel_l=6.0)
+        self.assertEqual(vehicle.get_status(), expected)

@@ -64,3 +64,26 @@ class EmergencyAndStatusTests(VehicleTestCase):
             status["last_transition_steps"],
             TRANSITION_STEPS[ROAD_TO_FLIGHT],
         )
+
+    def test_m_22_move_in_hover_triggers_emergency_landing(self) -> None:
+        """M-22: опасное движение в hover отменяется и запускает посадку."""
+        vehicle = self.make_vehicle_in_mode(HOVER_MODE, fuel_l=9)
+
+        vehicle.move(10, 1.0)
+
+        self.assertMode(vehicle, ROAD_MODE)
+        self.assertAlmostEqual(vehicle.fuel_l, 5.0)
+        self.assertEqual(vehicle.last_transition_path, HOVER_TO_ROAD)
+        self.assertEqual(vehicle.last_transition_steps, TRANSITION_STEPS[HOVER_TO_ROAD])
+
+    def test_m_23_emergency_landing_consumes_entire_reserve(self) -> None:
+        """M-23: аварийная посадка из flight может израсходовать весь резерв."""
+        vehicle = self.make_vehicle_in_mode(FLIGHT_MODE, fuel_l=6)
+        self.assertAlmostEqual(vehicle.fuel_l, vehicle.MIN_FUEL_L)
+
+        vehicle.move(1, 1.0)
+
+        self.assertMode(vehicle, ROAD_MODE)
+        self.assertAlmostEqual(vehicle.fuel_l, 0.0)
+        self.assertEqual(vehicle.last_transition_path, EMERGENCY_FLIGHT_PATH)
+        self.assertEqual(vehicle.last_transition_steps, EMERGENCY_FLIGHT_STEPS)
